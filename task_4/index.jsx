@@ -1,48 +1,57 @@
-import { useState } from "react";
+import React, { useState, useCallback, memo } from "react";
 
-export const Block1 = ({ mouseEnterCallbak, imgSrc, imgAlt }) => {
-  const [isActive, setActive] = useState(false);
-
-  const mouseEnterHandler = () => {
-    setActive(true);
-    mouseEnterCallbak();
-  };
-
-  return (
-    <div onMouseEnter={mouseEnterHandler} className={isActive ? "active" : ""}>
-      <img src={imgSrc} alt={imgAlt} />
-    </div>
-  );
+type BaseBlockProps = {
+  onMouseEnter?: () => void;
+  children: React.ReactNode;
 };
 
-export const Block2 = ({ mouseEnterCallbak, content }) => {
+const BaseBlock = memo(({ onMouseEnter, children }: BaseBlockProps) => {
   const [isActive, setActive] = useState(false);
 
-  const mouseEnterHandler = () => {
+  const handleMouseEnter = useCallback(() => {
     setActive(true);
-    mouseEnterCallbak();
-  };
+    onMouseEnter?.();
+  }, [onMouseEnter]);
 
   return (
-    <div onMouseEnter={mouseEnterHandler} className={isActive ? "active" : ""}>
-      <p>{content}</p>
+    <div onMouseEnter={handleMouseEnter} className={isActive ? "active" : ""}>
+      {children}
     </div>
   );
+});
+
+type Block1Props = {
+  mouseEnterCallbak: () => void;
+  imgSrc: string;
+  imgAlt?: string;
 };
 
-export const Block3 = ({ mouseEnterCallbak, userData }) => {
-  const [isActive, setActive] = useState(false);
+export const Block1 = memo(({ mouseEnterCallbak, imgSrc, imgAlt }: Block1Props) => (
+  <BaseBlock onMouseEnter={mouseEnterCallbak}>
+    <img src={imgSrc} alt={imgAlt ?? ""} />
+  </BaseBlock>
+));
 
-  const mouseEnterHandler = () => {
-    setActive(true);
-    mouseEnterCallbak();
-  };
-
-  return (
-    <div onMouseEnter={mouseEnterHandler} className={isActive ? "active" : ""}>
-      <address>
-        country: {userData.country}, street: {userData.street}
-      </address>
-    </div>
-  );
+type Block2Props = {
+  mouseEnterCallbak: () => void;
+  content: React.ReactNode | string;
 };
+
+export const Block2 = memo(({ mouseEnterCallbak, content }: Block2Props) => (
+  <BaseBlock onMouseEnter={mouseEnterCallbak}>
+    <p>{content}</p>
+  </BaseBlock>
+));
+
+type Block3Props = {
+  mouseEnterCallbak: () => void;
+  userData: { country: string; street: string };
+};
+
+export const Block3 = memo(({ mouseEnterCallbak, userData }: Block3Props) => (
+  <BaseBlock onMouseEnter={mouseEnterCallbak}>
+    <address>
+      country: {userData.country}, street: {userData.street}
+    </address>
+  </BaseBlock>
+));
